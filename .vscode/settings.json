@@ -1,0 +1,8 @@
+{
+    "chat.tools.terminal.autoApprove": {
+        "/^stellar contract build --help; stellar contract bindings --help; stellar contract bindings typescript --help$/": {
+            "approve": true,
+            "matchCommandLine": true
+        }
+    }
+}
