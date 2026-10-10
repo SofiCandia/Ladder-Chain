@@ -37,32 +37,26 @@ export const Errors = {
   1: {message:"Overflow"},
   2: {message:"YaInicializado"},
   3: {message:"NoInicializado"},
-  4: {message:"MetaYaAbierta"},
+  4: {message:"RepartoInvalido"},
   5: {message:"MetaInvalida"},
-  6: {message:"MontoInvalido"},
-  7: {message:"MetaCerrada"},
-  8: {message:"ExcedeAccesoDesbloqueado"},
-  9: {message:"SinSaldoParaRetirar"},
-  10: {message:"SaldoInsuficiente"},
-  11: {message:"RepartoInvalido"}
+  6: {message:"MetaYaAbierta"},
+  7: {message:"MontoInvalido"},
+  8: {message:"MetaCerrada"},
+  9: {message:"SaldoInsuficiente"},
+  10: {message:"SinSaldoParaRetirar"},
+  11: {message:"CooldownActivo"}
 }
 
 
 export interface EstadoMeta {
-  abierta: boolean;
-  colchon_bps: u32;
-  insignias: u32;
-  limite_acceso_anticipado: i128;
-  meta_actual: i128;
-  meta_base: i128;
-  meta_bps: u32;
-  nivel: u32;
-  primer_paso_bps: u32;
-  saldo_colchon: i128;
-  saldo_meta: i128;
-  saldo_primer_paso: i128;
+  badges_frozen: boolean;
+  cooldown_until_ledger: u32;
+  emergency_balance: i128;
+  level: u32;
+  primary_balance: i128;
+  primary_goal_amount: i128;
+  secondary_balance: i128;
 }
-
 
 
 
@@ -72,17 +66,17 @@ export interface Client {
   /**
    * Construct and simulate a depositar transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
    */
-  depositar: ({user, monto}: {user: string, monto: i128}, options?: MethodOptions) => Promise<AssembledTransaction<Result<void>>>
+  depositar: ({user, amount}: {user: string, amount: i128}, options?: MethodOptions) => Promise<AssembledTransaction<Result<void>>>
 
   /**
    * Construct and simulate a abrir_meta transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
    */
-  abrir_meta: ({user, meta_inicial}: {user: string, meta_inicial: i128}, options?: MethodOptions) => Promise<AssembledTransaction<Result<void>>>
+  abrir_meta: ({user, primary_goal_amount}: {user: string, primary_goal_amount: i128}, options?: MethodOptions) => Promise<AssembledTransaction<Result<void>>>
 
   /**
    * Construct and simulate a initialize transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
    */
-  initialize: ({token}: {token: string}, options?: MethodOptions) => Promise<AssembledTransaction<Result<void>>>
+  initialize: ({asset, primary_bps, secondary_bps, cooldown_ledgers}: {asset: string, primary_bps: u32, secondary_bps: u32, cooldown_ledgers: u32}, options?: MethodOptions) => Promise<AssembledTransaction<Result<void>>>
 
   /**
    * Construct and simulate a ver_estado transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
@@ -90,34 +84,19 @@ export interface Client {
   ver_estado: ({user}: {user: string}, options?: MethodOptions) => Promise<AssembledTransaction<Result<EstadoMeta>>>
 
   /**
-   * Construct and simulate a retirar_colchon transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
+   * Construct and simulate a retirar_meta_principal transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
    */
-  retirar_colchon: ({user, monto}: {user: string, monto: i128}, options?: MethodOptions) => Promise<AssembledTransaction<Result<void>>>
+  retirar_meta_principal: ({user, amount}: {user: string, amount: i128}, options?: MethodOptions) => Promise<AssembledTransaction<Result<void>>>
 
   /**
-   * Construct and simulate a configurar_reparto transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
+   * Construct and simulate a retirar_meta_secundaria transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
    */
-  configurar_reparto: ({user, meta_bps, colchon_bps, primer_paso_bps}: {user: string, meta_bps: u32, colchon_bps: u32, primer_paso_bps: u32}, options?: MethodOptions) => Promise<AssembledTransaction<Result<void>>>
+  retirar_meta_secundaria: ({user, amount}: {user: string, amount: i128}, options?: MethodOptions) => Promise<AssembledTransaction<Result<void>>>
 
   /**
-   * Construct and simulate a acceso_desbloqueado transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
+   * Construct and simulate a retirar_fondo_emergencia transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
    */
-  acceso_desbloqueado: ({user}: {user: string}, options?: MethodOptions) => Promise<AssembledTransaction<Result<i128>>>
-
-  /**
-   * Construct and simulate a retirar_primer_paso transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
-   */
-  retirar_primer_paso: ({user, monto}: {user: string, monto: i128}, options?: MethodOptions) => Promise<AssembledTransaction<Result<void>>>
-
-  /**
-   * Construct and simulate a retirar_desbloqueado transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
-   */
-  retirar_desbloqueado: ({user, monto}: {user: string, monto: i128}, options?: MethodOptions) => Promise<AssembledTransaction<Result<void>>>
-
-  /**
-   * Construct and simulate a retirar_todo_emergencia transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
-   */
-  retirar_todo_emergencia: ({user}: {user: string}, options?: MethodOptions) => Promise<AssembledTransaction<Result<void>>>
+  retirar_fondo_emergencia: ({user, amount}: {user: string, amount: i128}, options?: MethodOptions) => Promise<AssembledTransaction<Result<void>>>
 
 }
 export class Client extends ContractClient {
@@ -137,23 +116,19 @@ export class Client extends ContractClient {
   }
   constructor(public readonly options: ContractClientOptions) {
     super(
-      new ContractSpec([ "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",
+      new ContractSpec([ "AAAABAAAAAAAAAAAAAAABUVycm9yAAAAAAAACwAAAAAAAAAIT3ZlcmZsb3cAAAABAAAAAAAAAA5ZYUluaWNpYWxpemFkbwAAAAAAAgAAAAAAAAAOTm9JbmljaWFsaXphZG8AAAAAAAMAAAAAAAAAD1JlcGFydG9JbnZhbGlkbwAAAAAEAAAAAAAAAAxNZXRhSW52YWxpZGEAAAAFAAAAAAAAAA1NZXRhWWFBYmllcnRhAAAAAAAABgAAAAAAAAANTW9udG9JbnZhbGlkbwAAAAAAAAcAAAAAAAAAC01ldGFDZXJyYWRhAAAAAAgAAAAAAAAAEVNhbGRvSW5zdWZpY2llbnRlAAAAAAAACQAAAAAAAAATU2luU2FsZG9QYXJhUmV0aXJhcgAAAAAKAAAAAAAAAA5Db29sZG93bkFjdGl2bwAAAAAACw==",
+        "AAAAAQAAAAAAAAAAAAAACkVzdGFkb01ldGEAAAAAAAcAAAAAAAAADWJhZGdlc19mcm96ZW4AAAAAAAABAAAAAAAAABVjb29sZG93bl91bnRpbF9sZWRnZXIAAAAAAAAEAAAAAAAAABFlbWVyZ2VuY3lfYmFsYW5jZQAAAAAAAAsAAAAAAAAABWxldmVsAAAAAAAABAAAAAAAAAAPcHJpbWFyeV9iYWxhbmNlAAAAAAsAAAAAAAAAE3ByaW1hcnlfZ29hbF9hbW91bnQAAAAACwAAAAAAAAARc2Vjb25kYXJ5X2JhbGFuY2UAAAAAAAAL",
+        "AAAABQAAAAAAAAAAAAAADERlcG9zaXRFdmVudAAAAAEAAAAHZGVwb3NpdAAAAAAFAAAAAAAAAAR1c2VyAAAAEwAAAAEAAAAAAAAABmFtb3VudAAAAAAACwAAAAAAAAAAAAAAB3ByaW1hcnkAAAAACwAAAAAAAAAAAAAACXNlY29uZGFyeQAAAAAAAAsAAAAAAAAAAAAAAAllbWVyZ2VuY3kAAAAAAAALAAAAAAAAAAI=",
+        "AAAABQAAAAAAAAAAAAAADExldmVsVXBFdmVudAAAAAEAAAAIbGV2ZWxfdXAAAAAEAAAAAAAAAAR1c2VyAAAAEwAAAAEAAAAAAAAADnByZXZpb3VzX2xldmVsAAAAAAAEAAAAAAAAAAAAAAAJbmV3X2xldmVsAAAAAAAABAAAAAAAAAAAAAAACW5leHRfZ29hbAAAAAAAAAsAAAAAAAAAAg==",
+        "AAAABQAAAAAAAAAAAAAAGEVtZXJnZW5jeVdpdGhkcmF3YWxFdmVudAAAAAEAAAAUZW1lcmdlbmN5X3dpdGhkcmF3YWwAAAACAAAAAAAAAAR1c2VyAAAAEwAAAAEAAAAAAAAABmFtb3VudAAAAAAACwAAAAAAAAAC",
+        "AAAABQAAAAAAAAAAAAAAG1ByaW1hcnlXaXRoZHJhd2FsUmVzZXRFdmVudAAAAAABAAAAGHByaW1hcnlfd2l0aGRyYXdhbF9yZXNldAAAAAMAAAAAAAAABHVzZXIAAAATAAAAAQAAAAAAAAAGYW1vdW50AAAAAAALAAAAAAAAAAAAAAAVY29vbGRvd25fdW50aWxfbGVkZ2VyAAAAAAAABAAAAAAAAAAC",
+        "AAAAAAAAAAAAAAAJZGVwb3NpdGFyAAAAAAAAAgAAAAAAAAAEdXNlcgAAABMAAAAAAAAABmFtb3VudAAAAAAACwAAAAEAAAPpAAAAAgAAAAM=",
+        "AAAAAAAAAAAAAAAKYWJyaXJfbWV0YQAAAAAAAgAAAAAAAAAEdXNlcgAAABMAAAAAAAAAE3ByaW1hcnlfZ29hbF9hbW91bnQAAAAACwAAAAEAAAPpAAAAAgAAAAM=",
+        "AAAAAAAAAAAAAAAKaW5pdGlhbGl6ZQAAAAAABAAAAAAAAAAFYXNzZXQAAAAAAAATAAAAAAAAAAtwcmltYXJ5X2JwcwAAAAAEAAAAAAAAAA1zZWNvbmRhcnlfYnBzAAAAAAAABAAAAAAAAAAQY29vbGRvd25fbGVkZ2VycwAAAAQAAAABAAAD6QAAAAIAAAAD",
         "AAAAAAAAAAAAAAAKdmVyX2VzdGFkbwAAAAAAAQAAAAAAAAAEdXNlcgAAABMAAAABAAAD6QAAB9AAAAAKRXN0YWRvTWV0YQAAAAAAAw==",
-        "AAAAAAAAAAAAAAAPcmV0aXJhcl9jb2xjaG9uAAAAAAIAAAAAAAAABHVzZXIAAAATAAAAAAAAAAVtb250bwAAAAAAAAsAAAABAAAD6QAAAAIAAAAD",
-        "AAAAAAAAAAAAAAASY29uZmlndXJhcl9yZXBhcnRvAAAAAAAEAAAAAAAAAAR1c2VyAAAAEwAAAAAAAAAIbWV0YV9icHMAAAAEAAAAAAAAAAtjb2xjaG9uX2JwcwAAAAAEAAAAAAAAAA9wcmltZXJfcGFzb19icHMAAAAABAAAAAEAAAPpAAAAAgAAAAM=",
-        "AAAAAAAAAAAAAAATYWNjZXNvX2Rlc2Jsb3F1ZWFkbwAAAAABAAAAAAAAAAR1c2VyAAAAEwAAAAEAAAPpAAAACwAAAAM=",
-        "AAAAAAAAAAAAAAATcmV0aXJhcl9wcmltZXJfcGFzbwAAAAACAAAAAAAAAAR1c2VyAAAAEwAAAAAAAAAFbW9udG8AAAAAAAALAAAAAQAAA+kAAAACAAAAAw==",
-        "AAAAAAAAAAAAAAAUcmV0aXJhcl9kZXNibG9xdWVhZG8AAAACAAAAAAAAAAR1c2VyAAAAEwAAAAAAAAAFbW9udG8AAAAAAAALAAAAAQAAA+kAAAACAAAAAw==",
-        "AAAAAAAAAAAAAAAXcmV0aXJhcl90b2RvX2VtZXJnZW5jaWEAAAAAAQAAAAAAAAAEdXNlcgAAABMAAAABAAAD6QAAAAIAAAAD" ]),
+        "AAAAAAAAAAAAAAAWcmV0aXJhcl9tZXRhX3ByaW5jaXBhbAAAAAAAAgAAAAAAAAAEdXNlcgAAABMAAAAAAAAABmFtb3VudAAAAAAACwAAAAEAAAPpAAAAAgAAAAM=",
+        "AAAAAAAAAAAAAAAXcmV0aXJhcl9tZXRhX3NlY3VuZGFyaWEAAAAAAgAAAAAAAAAEdXNlcgAAABMAAAAAAAAABmFtb3VudAAAAAAACwAAAAEAAAPpAAAAAgAAAAM=",
+        "AAAAAAAAAAAAAAAYcmV0aXJhcl9mb25kb19lbWVyZ2VuY2lhAAAAAgAAAAAAAAAEdXNlcgAAABMAAAAAAAAABmFtb3VudAAAAAAACwAAAAEAAAPpAAAAAgAAAAM=" ]),
       options
     )
   }
@@ -162,11 +137,8 @@ export class Client extends ContractClient {
         abrir_meta: this.txFromJSON<Result<void>>,
         initialize: this.txFromJSON<Result<void>>,
         ver_estado: this.txFromJSON<Result<EstadoMeta>>,
-        retirar_colchon: this.txFromJSON<Result<void>>,
-        configurar_reparto: this.txFromJSON<Result<void>>,
-        acceso_desbloqueado: this.txFromJSON<Result<i128>>,
-        retirar_primer_paso: this.txFromJSON<Result<void>>,
-        retirar_desbloqueado: this.txFromJSON<Result<void>>,
-        retirar_todo_emergencia: this.txFromJSON<Result<void>>
+        retirar_meta_principal: this.txFromJSON<Result<void>>,
+        retirar_meta_secundaria: this.txFromJSON<Result<void>>,
+        retirar_fondo_emergencia: this.txFromJSON<Result<void>>
   }
 }

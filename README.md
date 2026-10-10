@@ -1,17 +1,17 @@
-# Escalera de ahorro v2
+# Escalera de ahorro — Soroban
 
-Contrato Soroban con tres fondos por usuario: **Meta**, **Colchón** y **Primer Paso**. El token (un único SAC USDC de testnet) se fija al inicializar. Los importes se manejan como enteros en la unidad mínima del token; la lógica no presupone una cantidad de decimales.
+Contrato Soroban con tres fondos por usuario: **Meta Principal**, **Meta Secundaria** y **Fondo de Emergencia**. El activo SEP-41/SAC, `primary_bps`, `secondary_bps` y `cooldown_ledgers` se fijan una sola vez mediante `initialize`; el porcentaje de Emergencia es el residuo hasta 10 000 bps. No existe una función de administración que modifique esa configuración.
 
-Cada usuario abre una meta y configura `meta_bps`, `colchon_bps` y `primer_paso_bps`, cuya suma debe ser exactamente 10 000. Los porcentajes pueden cambiarse con autorización y solo afectan depósitos posteriores; el saldo ya acreditado no se redistribuye. En los depósitos, el redondeo restante se acredita a Primer Paso.
+Los montos se expresan como `i128` en la unidad mínima del activo. Los depósitos y retiros rechazan montos menores o iguales a cero. Un depósito acredita `D * primary_bps / 10_000` a Meta Principal, `D * secondary_bps / 10_000` a Meta Secundaria y el resto a Emergencia; así, la suma acreditada es exactamente `D`. El usuario establece su meta inicial con `abrir_meta`.
 
-El nivel, las insignias y la siguiente meta dependen exclusivamente del saldo de Meta. Un depósito puede subir como máximo un nivel, incluso si excede varias metas; la meta siguiente es `meta_actual * 170 / 100`, y el saldo excedente permanece como avance. El acceso anticipado máximo es `saldo_meta * min(nivel * 10, 50) / 100`. Colchón y Primer Paso se pueden retirar libremente hasta sus saldos, sin alterar progreso. La salida total devuelve los tres fondos, reinicia el progreso a `meta_base` y conserva la configuración porcentual.
+Solo completar Meta Principal sube un nivel y genera el evento de insignia. La meta siguiente se calcula con redondeo hacia arriba: `(meta_anterior * 140 + 99) / 100`, con errores tipados en caso de overflow. Los retiros de Meta Secundaria y Emergencia no alteran el progreso. Cualquier retiro de Meta Principal devuelve el monto íntegro, reduce ese saldo, reinicia el nivel a 1, congela las insignias y activa el cooldown on-chain. Mientras el ledger actual sea menor que `cooldown_until_ledger`, los depósitos se rechazan.
 
-No se promete rendimiento, no hay función de administrador para editar el estado y Blend no está integrado. **Primer Paso solo acumula; no invierte.** Toda operación de fondos y configuración requiere autorización del usuario.
+El estado se almacena por usuario en almacenamiento persistente; el TTL de la configuración de instancia y del estado de usuario se renueva al depositar o retirar. Las operaciones de fondos requieren `user.require_auth()`. No se promete rendimiento y no hay función de administrador con acceso a fondos.
 
 ## Pruebas, build y bindings
 
 ```powershell
-cargo test -p escalera-ahorro
+cargo test
 stellar contract build
 stellar contract bindings typescript --wasm target\wasm32v1-none\release\escalera_ahorro.wasm --output-dir target\escalera-ahorro-bindings-v2
 Copy-Item target\escalera-ahorro-bindings-v2\src\index.ts packages\escalera-ahorro\src\index.ts -Force
@@ -19,7 +19,9 @@ Set-Location packages\escalera-ahorro
 npm run build
 ```
 
-SDK del contrato: `soroban-sdk 27.0.6` (scaffold generado por Stellar CLI `28.0.0`). El ABI v2 incorpora `configurar_reparto`, `retirar_colchon` y `retirar_primer_paso`; `ver_estado` devuelve la configuración, los tres saldos, nivel, insignias, metas y límite anticipado.
+SDK del contrato: `soroban-sdk 27.0.6` (scaffold generado por Stellar CLI `28.0.0`). Tras cambiar el contrato, regenera los bindings TypeScript desde el WASM producido: los bindings previamente generados describen un ABI anterior. `ver_estado` devuelve los tres saldos, la meta principal, el nivel, el estado de congelación de insignias y el ledger de fin del cooldown.
+
+> Las instancias, transacciones, flujos verificados y comandos de despliegue documentados debajo corresponden a ABI anteriores. No son compatibles con el contrato actual; se conservan únicamente como referencia histórica. No inicialices esas instancias con el ABI actual.
 
 ## Testnet — instancia anterior con XLM (obsoleta)
 
