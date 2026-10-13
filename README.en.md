@@ -244,11 +244,22 @@ The instance and the WASM code are distinct ledger entries; extending either of 
 
 Distributed under the **MIT** license. See the [`LICENSE`](LICENSE) file for details.
 
----
+## Authors and acknowledgements
 
-## Author
+| | |
+|---|---|
+| **Sofía Candia** | Civil Engineering in Telematics, Universidad de La Frontera |
+| **Consuelo Licanqueo** | Civil Engineering in Industrial Engineering, Universidad de La Frontera |
 
-**Sofía Candia**
+We thank **Stellar**, in partnership with **iDEAUFRO**, and the **Agrupación Bandurr[IA] UFRO**.
+
+<div align="center">
+
+<img src="assets/logo_ufro.png" alt="Universidad de La Frontera" height="64">&nbsp;&nbsp;&nbsp;
+<img src="assets/logo_ideaufro.jpg" alt="iDEAUFRO" height="64">&nbsp;&nbsp;&nbsp;
+<img src="assets/logo_stellar.jpg" alt="Stellar" height="64">
+<img src="assets/logo_BandurrIA.jpg" alt="Agrupacion Bandurr[IA]" height="64">
+<br/>
 
 <div align="center">
 
