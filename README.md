@@ -240,18 +240,30 @@ La instancia y el código WASM son entradas de ledger distintas; extender cualqu
 
 ---
 
-## Licencia
+**## Licencia
 
 Distribuido bajo la licencia **MIT**. Consulta el archivo [`LICENSE`](LICENSE) para más detalles.
 
 ---
 
-## Autora
+## Autoras y agradecimientos
 
-**Sofía Candia**
+| | |
+|---|---|
+| **Sofía Candia** | Ingeniería Civil Telemática, Universidad de La Frontera |
+| **Consuelo Licanqueo** | Ingeniería Civil Industrial, Universidad de La Frontera |
+
+Agradecemos a **Stellar**, en alianza con **iDEAUFRO**, y a la **Agrupación Bandurr[IA] UFRO**.
 
 <div align="center">
 
-*Ladder Chain: escalera de ahorro sobre Soroban.*
+<img src="docs/assets/logo_ufro.png" alt="Universidad de La Frontera" height="64">&nbsp;&nbsp;&nbsp;
+<img src="docs/assets/logo_ideaufro.jpg" alt="iDEAUFRO" height="64">&nbsp;&nbsp;&nbsp;
+<img src="docs/assets/logo_stellar.jpg" alt="Stellar" height="64">
+<img src="docs/assets/logo_BandurrIA.jpg" alt="Agrupacion Bandurr[IA]" height="64">
+<br/>
 
-</div>
+Hecho en Chile para el University Track del hackathon **Stellar · Find Your Way**.
+
+*GivePath: el camino de la donación.*
+**
